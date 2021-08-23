@@ -1,6 +1,7 @@
 <?php
 
-    include("db.php");
+    // include db file
+    //include("db.php");
 
     function add_typeOfTree($conn, $typeOfTree) {
         return add_value($conn, "TC_treeType", "TreeType", $typeOfTree, "TREETYPEID");
@@ -99,4 +100,27 @@
         insert_query($conn, $tree_insert_query);
         
     }
+
+    
+    // get the details of the tree based on the treeid
+    function fetch_tree($conn, $treeid) {
+
+        $treeid = mysqli_escape_string($conn, $treeid);
+
+        // fetch tree query
+        $FETCH_TREE_QUERY =  "SELECT * FROM TC_tree WHERE TREEID = {$treeid}";
+        $result = select_query($conn, $FETCH_TREE_QUERY);
+
+        if($result -> num_rows > 0 ) {
+
+            // get the results as array
+            $row = $result -> fetch_assoc();
+
+            // return the row
+            return $row;
+
+        }
+    }
+
+
 ?>

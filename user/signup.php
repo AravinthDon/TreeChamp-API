@@ -44,7 +44,8 @@
                 echo json_encode(array("status" => "Error", "message" => "Passowrd not provided"));
             } elseif(!isset($_POST['type'])) {
                 echo json_encode(array("status" => "Error", "message" => "UserType not provided"));
-            }
+            }   
+
         } else {
     
             // include files
@@ -64,18 +65,18 @@
             array_walk($user, 'real_escape_string');
             
             // check for the usertype id 
-            $usertypeid_Query = "SELECT USERTYPEID FROM TC_userType WHERE userType = {$user['type']}";
+            $usertypeid_Query = "SELECT USERTYPEID FROM TC_userType WHERE UserType = {$user['type']}";
             $usertypeid = select_query($conn, $usertypeid_Query);
 
             // check if the username is already available
-            $USER_CHECK_QUERY = "SELECT USER_ID FROM TC_user WHERE Username = '{$user['username']}' and WHERE USERTYPEID = {$usertypeid}";
+            $USER_CHECK_QUERY = "SELECT USER_ID FROM TC_user WHERE Username = '{$user['username']}' and USERTYPEID = {$usertypeid}";
             $result = select_query($conn, $USER_CHECK_QUERY);
     
             if($result->num_rows > 0) {
                 //array_push();
                 echo json_encode(array("status" => "Error", "message" => "Username already taken"));
             } else {
-                // generate the has
+                // generate the hash
                 $hash = password_hash($user['password'], PASSWORD_DEFAULT);
                 // generate the random key
                 $token_key = random_str();
@@ -88,7 +89,7 @@
                 if(!empty($user_id)) {
                     $response['user_id'] = $user_id;
                     $response['api_key'] = $token_key;
-                    
+
                     echo json_encode(array("status" => "Success", "data" => $response));
                 } else {
                     header("HTTP/1.0 500 Internal Server Error");

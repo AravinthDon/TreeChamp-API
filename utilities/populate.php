@@ -3,6 +3,7 @@
     // Include the database connection file
 
     include("../config/database.php");
+    include("../utilities/db.php");
     
     // Upload the file with the front-end app to the server
     // use file_get_contents($endpoint) to then fetch the file
