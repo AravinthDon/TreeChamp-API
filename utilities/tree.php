@@ -148,18 +148,17 @@
 
     function get_age($conn, $ageid) {
 
-        $ageid = mysqli_escape_string($conn, $ageid);
+            $ageid = mysqli_escape_string($conn, $ageid);
 
-        //echo "<p> $ageid </p> <br />";
-        $FIND_AGE = "SELECT * FROM TC_age WHERE AGEID = $ageid";
-        $result = select_query($conn, $FIND_AGE);
+            $FIND_AGE = "SELECT * FROM TC_age WHERE AGEID = $ageid";
+            $result = select_query($conn, $FIND_AGE);
 
-        if($result->num_rows > 0) {
-            $row = $result->fetch_assoc();
-            return $row['Age'];
-        } else {
-            return NULL;
-        }
+            if($result->num_rows > 0) {
+                $row = $result->fetch_assoc();
+                return $row['Age'];
+            } 
+        return NULL;
+        
     }
 
     function get_treesurround($conn, $treesurroundid) {
@@ -243,6 +242,8 @@
             return $tree;
 
         }
+
+        return [];
     }
 
     function get_id($conn, $table, $column, $value, $id) {

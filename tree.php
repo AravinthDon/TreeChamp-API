@@ -9,7 +9,13 @@
     include("utilities/tree.php");
 
     if($_SERVER['REQUEST_METHOD'] == "GET") {
-        
+        if(isset($_GET['treeid'])) {
+            
+            $tree = fetch_tree($conn, $_GET['treeid']);
+            echo json_encode(array("status" => "Success", "data" => array($tree)));
+        } else {
+            
+        }
     }
     if($_SERVER['REQUEST_METHOD'] == "POST") {
         
