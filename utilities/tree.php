@@ -101,7 +101,112 @@
         
     }
 
-    
+    function get_tree_type($conn, $treetypeid) {
+
+        $treetypeid = mysqli_escape_string($conn, $treetypeid);
+
+        $FIND_TREETYPE = "SELECT * FROM TC_treeType WHERE TREETYPEID = $treetypeid";
+        $result = select_query($conn, $FIND_TREETYPE);
+
+        if($result->num_rows > 0) {
+            $row = $result->fetch_assoc();
+            return $row['TreeType'];
+        } else {
+            return NULL;
+        }
+    }
+
+    function get_species_type($conn, $speciestypeid) {
+
+        $speciestypeid = mysqli_escape_string($conn, $speciestypeid);
+
+        $FIND_SPECIESTYPE = "SELECT * FROM TC_speciesType WHERE SPECIESTYPEID = $speciestypeid";
+        $result = select_query($conn, $FIND_SPECIESTYPE);
+
+        if($result->num_rows > 0) {
+            $row = $result->fetch_assoc();
+            return $row['SpeciesType'];
+        } else {
+            return NULL;
+        }
+    }
+
+    function get_species($conn, $speciesid) {
+
+        $speciesid = mysqli_escape_string($conn, $speciesid);
+
+        $FIND_SPECIES = "SELECT * FROM TC_species WHERE SPECIESID = $speciesid";
+        $result = select_query($conn, $FIND_SPECIES);
+
+        if($result->num_rows > 0) {
+            $row = $result->fetch_assoc();
+            return $row['Species'];
+        } else {
+            return NULL;
+        }
+    }
+
+    function get_age($conn, $ageid) {
+
+        $ageid = mysqli_escape_string($conn, $ageid);
+
+        //echo "<p> $ageid </p> <br />";
+        $FIND_AGE = "SELECT * FROM TC_age WHERE AGEID = $ageid";
+        $result = select_query($conn, $FIND_AGE);
+
+        if($result->num_rows > 0) {
+            $row = $result->fetch_assoc();
+            return $row['Age'];
+        } else {
+            return NULL;
+        }
+    }
+
+    function get_treesurround($conn, $treesurroundid) {
+
+        $treesurroundid = mysqli_escape_string($conn, $treesurroundid);
+
+        $FIND_SURROUND = "SELECT * FROM TC_treeSurround WHERE TREESURROUNDID = $treesurroundid";
+        $result = select_query($conn, $FIND_SURROUND);
+
+        if($result->num_rows > 0) {
+            $row = $result->fetch_assoc();
+            return $row['TreeSurround'];
+        } else {
+            return NULL;
+        }
+    }
+
+    function get_vigour($conn, $vigourid) {
+
+        $vigourid = mysqli_escape_string($conn, $vigourid);
+
+        $FIND_VIGOUR = "SELECT * FROM TC_vigour WHERE VIGOURID = $vigourid";
+        $result = select_query($conn, $FIND_VIGOUR);
+
+        if($result->num_rows > 0) {
+            $row = $result->fetch_assoc();
+            return $row['Vigour'];
+        } else {
+            return NULL;
+        }
+    }
+
+    function get_condition($conn, $conditionid) {
+
+        $conditionid = mysqli_escape_string($conn, $conditionid);
+
+        $FIND_CONDITION = "SELECT * FROM TC_condition WHERE CONDITIONID = $conditionid";
+        $result = select_query($conn, $FIND_CONDITION);
+
+        if($result->num_rows > 0) {
+            $row = $result->fetch_assoc();
+            return $row['ConditionType'];
+        } else {
+            return NULL;
+        }
+    }
+
     // get the details of the tree based on the treeid
     function fetch_tree($conn, $treeid) {
 
@@ -116,11 +221,72 @@
             // get the results as array
             $row = $result -> fetch_assoc();
 
+            //echo "Treeid: <p> {$row['TREEID']} </p>";
+
+            $tree['ID'] = $row['TREEID'];
+            $tree['TreeTag'] = $row['TreeTag'];
+            $tree['TreeType'] = get_tree_type($conn, $row['TREETYPEID']);
+            $tree['SpeciesTye'] = get_species_type($conn, $row['SPECIESTYPEID']);
+            $tree['Species'] = get_species($conn, $row['SPECIESID']);
+            $tree['Age'] = ($row['AGEID'] == 'NULL') ? 'NULL' : get_age($conn, $row['AGEID']);
+            $tree['TreeSurround'] = get_treesurround($conn, $row['TREESURROUNDID']);
+            $tree['Vigour'] = get_vigour($conn, $row['VIGOURID']);
+            $tree['Condition'] = get_condition($conn, $row['CONDITIONID']);
+            $tree['Description'] = $row['Description'];
+            $tree['Diameter'] = $row['Diameter'];
+            $tree['SpreadRadius'] = $row['SpreadRadius'];
+            $tree['Longitude'] = $row['Longitude'];
+            $tree['Latitude'] = $row['Latitude'];
+            $tree['Height'] = $row['Height'];
+            
             // return the row
-            return $row;
+            return $tree;
 
         }
     }
 
+    function get_id($conn, $table, $column, $value, $id) {
 
+        $table = mysqli_real_escape_string($conn, $table);
+        $value = mysqli_real_escape_string($conn, $value);
+
+        $FETCH_ID_QUERY = "SELECT '{$id}' FROM {$table} where {$column} = '{$value}'";
+        $result_id = select_query($conn, $FETCH_ID_QUERY);
+
+        if($result_id -> num_rows > 0) {
+            return $result_id -> fetch_assoc()[$id];
+        }
+
+    }
+    function updateTree($conn, $tree) {
+
+        $treetypeid = get_id($conn, 'TC_treeType', 'TreeType', $tree['TreeType'], 'TREETYPEID');
+        //echo $treetypeid;
+        $speciestypeid = get_id($conn, 'TC_speciesType', 'SpeciesType', $tree['SpeciesType'], 'SPECIESTYPeID');
+        $speciesid = get_id($conn, 'TC_species', 'Species', mysqli_real_escape_string($conn, $tree['Species']), 'SPECIESID');
+        $ageid = get_id($conn, 'TC_age', 'Age', $tree['Age'], 'AGEID');
+        $treeSurroundid = get_id($conn, 'TC_treeSurround', 'TreeSurround', $tree['TreeSurround'], 'TREESURROUNDID');
+        $vigourid = get_id($conn, 'TC_vigour', 'Vigour', $tree['Vigour'], 'VIGOURID');
+        $conditionid = get_id($conn, 'TC_condition', 'ConditionType', $tree['Condition'], 'CONDITIONID');
+
+        $TREE_UPDATE_QUERY = "UPDATE `TC_tree` SET `TreeTag` = {$tree['TreeTag']}, `TREETYPEID` = {$treetypeid}, `SPECIESTYPEID` = ${speciestypeid},
+        `SPECIESID` = ${speciesid},`AGEID` = ${ageid}, `TREESURROUNDID` = ${treeSurroundid}, `VIGOURID` = ${vigourid}, `CONDITIONID` = ${conditionid},
+        `Description` = '{$tree['Description']}', `Diameter` = {$tree['Diameter']}, `SpreadRadius` = {$tree['SpreadRadius']},
+        `Longitude` = {$tree['Longitude']}, `Latitude` = {$tree['Latitude']},
+        `Height` = {$tree['Height']} WHERE `TC_tree`.`TREEID` = {$tree['TREEID']}";
+
+        $result = $conn->query($TREE_UPDATE_QUERY);
+        $res = array();
+        if(!$result) {
+            
+            $res['status'] = "Error";
+            $res['error'] = $conn->error;
+        } else {
+            $res['status'] = "Success";
+            $res['tree'] = $tree;
+        }
+
+        return $res;
+            
+    }
 ?>

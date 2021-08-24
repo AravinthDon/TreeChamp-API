@@ -65,13 +65,19 @@
             array_walk($user, 'real_escape_string');
             
             // check for the usertype id 
-            $usertypeid_Query = "SELECT USERTYPEID FROM TC_userType WHERE UserType = {$user['type']}";
-            $usertypeid = select_query($conn, $usertypeid_Query);
+            $usertypeid_Query = "SELECT USERTYPEID FROM TC_userType WHERE UserType = \"{$user['type']}\"";
+            $res_usertypeid = select_query($conn, $usertypeid_Query);
 
+            $usertypeid = NULL;
+
+            if($res_usertypeid -> num_rows > 0) {
+                $usertypeid = $res_usertypeid -> fetch_assoc()['USERTYPEID'];
+            }
+            $username = $user['username'];
             // check if the username is already available
-            $USER_CHECK_QUERY = "SELECT USER_ID FROM TC_user WHERE Username = '{$user['username']}' and USERTYPEID = {$usertypeid}";
+            $USER_CHECK_QUERY = "SELECT *  FROM `TC_user` WHERE `Username` LIKE '{$username}' AND `USERTYPEID` = {$usertypeid}";
             $result = select_query($conn, $USER_CHECK_QUERY);
-    
+            
             if($result->num_rows > 0) {
                 //array_push();
                 echo json_encode(array("status" => "Error", "message" => "Username already taken"));
@@ -80,7 +86,7 @@
                 $hash = password_hash($user['password'], PASSWORD_DEFAULT);
                 // generate the random key
                 $token_key = random_str();
-                $CREATE_USER_QUERY = "INSERT INTO TC_User(Username, `Password`, api_key, USERTYPEID) VALUES('{$user['username']}', '{$hash}', '{$token_key}', {$usertypeid})";
+                $CREATE_USER_QUERY = "INSERT INTO TC_user(Username, `Password`, api_key, USERTYPEID) VALUES('{$user['username']}', '{$hash}', '{$token_key}', {$usertypeid})";
     
                 $user_id = insert_query($conn, $CREATE_USER_QUERY);
                 

@@ -26,6 +26,7 @@
             // include files
             include("../config/database.php");
             include("../utilities/db.php");
+            include("../utilities/user.php");
 
             // create user array
             $user = array();
@@ -39,12 +40,18 @@
             // sanitise the $user details
             array_walk($user, 'real_escape_string');
 
-            // check for the usertype id
-            $usertypeid_Query = "SELECT USERTYPEID FROM TC_userType WHERE userType = {$user['type']}";
-            $usertypeid = select_query($conn, $usertypeid_Query);
+            // check for the usertype id 
+            // $usertypeid_Query = "SELECT USERTYPEID FROM TC_userType WHERE UserType = \"{$user['type']}\"";
+            // $res_usertypeid = select_query($conn, $usertypeid_Query);
 
+            $usertypeid = get_usertypeid($conn, $user['type']);
+
+            // if($res_usertypeid -> num_rows > 0) {
+            //     $usertypeid = $res_usertypeid -> fetch_assoc()['USERTYPEID'];
+            // }
+            $username = $user['username'];
             // check if the username is already available
-            $USER_CHECK_QUERY = "SELECT * FROM TC_User WHERE Username = '{$user['username']}' AND USERTYPEID = '{$usertypeid}'";
+            $USER_CHECK_QUERY = "SELECT *  FROM `TC_user` WHERE `Username` LIKE '{$username}' AND `USERTYPEID` = {$usertypeid}";
             $result = select_query($conn, $USER_CHECK_QUERY);
             
 
@@ -53,18 +60,18 @@
                 $row = $result->fetch_assoc();
 
                 // get the details
-                $user_id = $row['USER_ID'];
+                $user_id = $row['USERID'];
                 $username = $row['Username'];
                 $hash = $row['Password'];
                 $api_key = $row['api_key'];
-                $type = $row['type'];
+                $type = get_usertype($conn, $row['USERTYPEID']);
 
                 // since the username is unique we only need to check the password
                 if(password_verify($user['password'], $hash)){
                     $response = array();
                     $response['user_id'] = $user_id;
                     $response['api_key'] = $api_key;
-                    $response['type'] = $type;
+                    $response['type'] = get_usertype($conn, $row['USERTYPEID']);
 
                     echo json_encode(array("status" => "Success", "data" => $response));
                 } else {

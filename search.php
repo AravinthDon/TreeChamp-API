@@ -31,8 +31,10 @@
             array_walk($coord, 'trim_value');
             array_walk($coord, 'real_escape_string');
 
+            $latitude = $coord['latitude'];
+            $longitude = $coord['longitude'];
             // query for fetching details
-            $LOCATION_SEARCH_QUERY = "SELECT TREEID FROM TC_tree WHERE latitude LIKE {$coord['latitude']}% AND LIKE {$coord['longitude']}%";
+            $LOCATION_SEARCH_QUERY = "SELECT TREEID FROM TC_tree WHERE latitude LIKE '$latitude%' AND longitude LIKE '$longitude%'";
             $result = select_query($conn, $LOCATION_SEARCH_QUERY);
 
             if($result->num_rows > 0) {
