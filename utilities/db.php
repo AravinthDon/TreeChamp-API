@@ -13,7 +13,7 @@
 
     function real_escape_string(&$value) {
         // include the database configuration file
-        include("../config/database.php");
+        include("$_SERVER[DOCUMENT_ROOT]/treechamp/api/config/database.php");
         $value = mysqli_real_escape_string($conn, $value);
     }
     
@@ -60,7 +60,7 @@
         $result = select_query($conn, $query);
 
         if($result->num_rows == 0) {
-            echo "<p> $table </p>";
+            //echo "<p> $table </p>";
             return NULL;
         } else {
             return $result;

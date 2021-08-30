@@ -10,19 +10,23 @@
     if($_SERVER['REQUEST_METHOD'] == 'POST') {
         
         // check if the username and the password is given
-        if(!isset($_POST['password']) && !isset($_POST['username'])) {
-            echo json_encode(array("status" => "Error", "message" => "Username and Password not provided"));
-        } elseif( !isset($_POST['password']) | !isset($_POST['username'])) {
+        if(!isset($_POST['password']) && !isset($_POST['username']) && !isset($_POST['type'])) {
+            echo json_encode(array("status" => "Error", "message" => "Username, Password,and UserType not provided"));
+        } elseif( !isset($_POST['password']) | !isset($_POST['username']) | !isset($_POST['type']) ) {
             // Respond with appropriate error messages
             if(!isset($_POST['username'])) {
                 echo json_encode(array("status" => "Error", "message" => "Username not provided"));
             } elseif(!isset($_POST['password'])) {
-                echo json_encode(array("status" => "Error", "message" => "Password not provided"));
-            }
+                echo json_encode(array("status" => "Error", "message" => "Passowrd not provided"));
+            } elseif(!isset($_POST['type'])) {
+                echo json_encode(array("status" => "Error", "message" => "UserType not provided"));
+            }   
+
         } else {
             // include files
             include("../config/database.php");
             include("../utilities/db.php");
+            include("../utilities/user.php");
 
             // create user array
             $user = array();
@@ -36,27 +40,38 @@
             // sanitise the $user details
             array_walk($user, 'real_escape_string');
 
-            // check if the username is already available
-            $USER_CHECK_QUERY = "SELECT * FROM FT_User WHERE Username = '{$user['username']}'";
+            // check for the usertype id 
+            // $usertypeid_Query = "SELECT USERTYPEID FROM TC_userType WHERE UserType = \"{$user['type']}\"";
+            // $res_usertypeid = select_query($conn, $usertypeid_Query);
 
+            $usertypeid = get_usertypeid($conn, $user['type']);
+
+            // if($res_usertypeid -> num_rows > 0) {
+            //     $usertypeid = $res_usertypeid -> fetch_assoc()['USERTYPEID'];
+            // }
+            $username = $user['username'];
+            // check if the username is already available
+            $USER_CHECK_QUERY = "SELECT *  FROM `TC_user` WHERE `Username` LIKE '{$username}' AND `USERTYPEID` = {$usertypeid}";
             $result = select_query($conn, $USER_CHECK_QUERY);
+            
 
             if($result->num_rows > 0 ) {
                 // the user is available check for the passowrd
                 $row = $result->fetch_assoc();
 
                 // get the details
-                $user_id = $row['USER_ID'];
+                $user_id = $row['USERID'];
                 $username = $row['Username'];
                 $hash = $row['Password'];
                 $api_key = $row['api_key'];
-                $type = $row['type'];
+                $type = get_usertype($conn, $row['USERTYPEID']);
+
                 // since the username is unique we only need to check the password
                 if(password_verify($user['password'], $hash)){
                     $response = array();
                     $response['user_id'] = $user_id;
                     $response['api_key'] = $api_key;
-                    $response['type'] = $type;
+                    $response['type'] = get_usertype($conn, $row['USERTYPEID']);
 
                     echo json_encode(array("status" => "Success", "data" => $response));
                 } else {
