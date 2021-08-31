@@ -21,17 +21,18 @@
     if($_SERVER['REQUEST_METHOD'] == 'GET') {
 
         // parse the json data
-        $get_data = json_decode(file_get_contents('php://input'), true);
+        //$_GET = json_decode(file_get_contents('php://input'), true);
+        
+        //echo $_GET;
+        //print_r($_GET);
 
-        //print_r($get_data);
-
-        if(!isset($get_data['latitude']) && !isset($get_data['longitude'])) {
+        if(!isset($_GET['latitude']) && !isset($_GET['longitude'])) {
             echo json_encode(array("status" => "Error", "message" => "Latitude and Longitude not set"));
-        } elseif(!isset($get_data['latitude']) | !isset($get_data['longitude'])) {
+        } elseif(!isset($_GET['latitude']) | !isset($_GET['longitude'])) {
             
-            if(!isset($get_data['latitude'])) {
+            if(!isset($_GET['latitude'])) {
                 echo json_encode(array("status" => "Error", "message" => "Latitude not set"));
-            } elseif(!isset($get_data['longitude'])) {
+            } elseif(!isset($_GET['longitude'])) {
                 echo json_encode(array("status" => "Error", "message" => "Longitude not set"));
             }
         } else {
@@ -42,8 +43,8 @@
             include("$_SERVER[DOCUMENT_ROOT]/treechamp/api/utilities/tree.php");
 
             // get the details
-            $coord['latitude'] = $get_data['latitude'];
-            $coord['longitude'] = $get_data['longitude'];
+            $coord['latitude'] = $_GET['latitude'];
+            $coord['longitude'] = $_GET['longitude'];
 
             // sanitise the details
             array_walk($coord, 'trim_value');
@@ -96,7 +97,7 @@
                 }
 
                 echo json_encode($trees);
-                
+                //echo json_encode($_GET);
             }
 
         }
