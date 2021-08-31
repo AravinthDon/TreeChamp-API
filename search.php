@@ -74,8 +74,11 @@
                     // Calculate the distance
                     $distance = acos(sin($pi1) * sin($pi2) + cos($pi1) * cos($pi2) * cos($delta) ) * $radius;
 
+                    // check if surround Distance is provided
+                    // default : 100 metres
+                    $surroundDistance = isset($_GET['surround']) ? $_GET['surround'] : 100;
 
-                    if ($distance <= 100) {
+                    if ($distance <= $surroundDistance) {
 
                         // calculate the bearing for the tree
                         $y = sin($row['Longitude'] - $longitude) * cos($row['Latitude']);
