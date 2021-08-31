@@ -225,7 +225,7 @@
             $tree['ID'] = $row['TREEID'];
             $tree['TreeTag'] = $row['TreeTag'];
             $tree['TreeType'] = get_tree_type($conn, $row['TREETYPEID']);
-            $tree['SpeciesTye'] = get_species_type($conn, $row['SPECIESTYPEID']);
+            $tree['SpeciesType'] = get_species_type($conn, $row['SPECIESTYPEID']);
             $tree['Species'] = get_species($conn, $row['SPECIESID']);
             $tree['Age'] = ($row['AGEID'] == 'NULL') ? 'NULL' : get_age($conn, $row['AGEID']);
             $tree['TreeSurround'] = get_treesurround($conn, $row['TREESURROUNDID']);
