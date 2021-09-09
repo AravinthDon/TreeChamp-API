@@ -47,4 +47,27 @@
 
         return false;
     }
+
+    /**
+     * Random token generator
+     * Code Referenced from: https://stackoverflow.com/questions/4356289/php-random-string-generator/31107425#31107425
+     */
+
+    function random_str(
+        int $length = 64,
+        string $keyspace = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    ): string {
+
+        $keyspace = str_shuffle($keyspace );
+
+        if ($length < 1) {
+            return NULl;
+        }
+        $pieces = [];
+        $max = mb_strlen($keyspace, '8bit') - 1;
+        for ($i = 0; $i < $length; ++$i) {
+            $pieces []= $keyspace[random_int(0, $max)];
+        }
+        return implode('', $pieces);
+    }
 ?>
