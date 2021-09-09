@@ -3,7 +3,7 @@
     // Verify if the user is authenticated
     function verify_user($conn, $user_id, $api_key) {
 
-        $VERIFY_USER_QUERY = "SELECT USERID FROM TC_User WHERE USERID = {$user_id} AND api_key = '{$api_key}'";
+        $VERIFY_USER_QUERY = "SELECT USERID FROM TC_user WHERE USERID = {$user_id} AND api_key = '{$api_key}'";
 
         $verified_user_id = select_query($conn, $VERIFY_USER_QUERY);
 

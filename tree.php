@@ -4,6 +4,7 @@
     header('Access-Control-Allow-Methods: GET POST');
     header('Content-Type: application/json');
 
+    // add necessary files
     include("config/database.php");
     include("utilities/db.php");
     include("utilities/tree.php");
@@ -12,9 +13,9 @@
         if(isset($_GET['treeid'])) {
             
             $tree = fetch_tree($conn, $_GET['treeid']);
-            echo json_encode(array("status" => "Success", "data" => array($tree)));
+            echo json_encode(array("status" => "Success", "data" => $tree));
         } else {
-            
+            echo json_encode(array("status" => "Error", "message" => "Tree details not found" ));
         }
     }
     if($_SERVER['REQUEST_METHOD'] == "POST") {
@@ -45,10 +46,5 @@
         } else {
             echo json_encode(array("status" => "Error", "message" => $result['error']));
         }
-
-    
     }
-
-
-
 ?>
