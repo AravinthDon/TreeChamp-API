@@ -5,6 +5,7 @@
      */
 
     // set the headers
+    header("Access-Control-Allow-Origin: *");
     header('Access-Control-Allow-Methods: POST');
     header('Content-Type: application/json');
 
@@ -12,6 +13,7 @@
 
     if($_SERVER['REQUEST_METHOD'] == 'POST') {
 
+        //$json = json_decode(file_get_contents('php://input'),true)
         // check if the username and password is given
         if(!isset($_POST['password']) && !isset($_POST['username']) && !isset($_POST['type'])) {
             echo json_encode(array("status" => "Error", "message" => "Username,Password, and UserType not provided"));

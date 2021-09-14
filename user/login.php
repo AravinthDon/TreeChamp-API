@@ -3,6 +3,7 @@
      * Password hashing reference: https://www.sitepoint.com/hashing-passwords-php-5-5-password-hashing-api/
      */
     // set the headers
+    header("Access-Control-Allow-Origin: *");
     header('Access-Control-Allow-Methods: POST');
     header('Content-Type: application/json');
 
