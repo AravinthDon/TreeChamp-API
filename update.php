@@ -2,7 +2,7 @@
 
 // Allow only POST methods
 header("Access-Control-Allow-Origin: *");
-header('Access-Control-Allow-Methods: GET POST PUT');
+header('Access-Control-Allow-Methods: GET POST');
 header('Content-Type: application/json');
 
 // include the necessary files
@@ -43,13 +43,16 @@ if (!isset($uid) && !isset($api_key)) {
 
                 $title = $update['title'];
                 $description = $update['description'];
+                $issue = $update['issue'];
 
                 $title = mysqli_real_escape_string($conn, $title);
                 $description = mysqli_real_escape_string($conn, $description);
                 $userid = mysqli_real_escape_string($conn, $uid);
                 $treeid = mysqli_real_escape_string($conn, $update['treeid']);
+                $issue = mysqli_real_escape_string($conn, $issue);
 
-                $INSERT_UPDATE_QUERY = "INSERT INTO TC_update(TREEID, USERID, Title, `Description`) VALUES($treeid, $userid, '$title', '$description')";
+
+                $INSERT_UPDATE_QUERY = "INSERT INTO TC_update(TREEID, USERID, Title, `Description`, `Issue`) VALUES($treeid, $userid, '$title', '$description', $issue)";
                 $updateid = insert_query($conn, $INSERT_UPDATE_QUERY);
 
                 if (isset($update['posts'])) {
@@ -60,7 +63,7 @@ if (!isset($uid) && !isset($api_key)) {
                         if (isset($post['imgURL'])) {
                             real_escape_string($post['imgURL']);
                             $imgurl = $post['imgURL'];
-
+ 
                             if (isset($post['caption'])) {
                                 $caption = $post['caption'];
                             } else {
@@ -138,7 +141,7 @@ if (!isset($uid) && !isset($api_key)) {
                     //     echo json_encode(array("status" => "Error", "messsage" => "Only admins can view all trees"));
                     // }
                     
-                    $UPDATES_QUERY = "SELECT UPDATEID FROM TC_update";
+                    $UPDATES_QUERY = "SELECT UPDATEID FROM TC_update ORDER BY Dateadded DESC";
                     $updates_result = select_query($conn, $UPDATES_QUERY);
 
                     if($updates_result-> num_rows > 0) {
@@ -155,7 +158,7 @@ if (!isset($uid) && !isset($api_key)) {
                     } else {
                         echo json_encode(array("status" => "Error", "message" => "No updates found"));
                     }
-
+                      
                 }
             }
         }
