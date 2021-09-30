@@ -1,9 +1,20 @@
 <?php
 
-// Allow only POST methods
-header("Access-Control-Allow-Origin: *");
-header('Access-Control-Allow-Methods: GET POST');
+header('Access-Control-Allow-Origin: *');
+header("Access-Control-Allow-Methods: HEAD, GET, POST, PUT, PATCH, DELETE, OPTIONS");
+// Added user defined headers: uid, appid
+header("Access-Control-Allow-Headers: X-API-KEY, Origin, X-Requested-With, Content-Type, Accept, Access-Control-Request-Method,Access-Control-Request-Headers, Authorization, uid, appid");
 header('Content-Type: application/json');
+
+
+$method = $_SERVER['REQUEST_METHOD'];
+if ($method == "OPTIONS") {
+    header('Access-Control-Allow-Origin: *');
+    header("Access-Control-Allow-Headers: X-API-KEY, Origin, X-Requested-With, Content-Type, Accept, Access-Control-Request-Method,Access-Control-Request-Headers, Authorization, uid, appid");
+    header("HTTP/1.1 200 OK");
+    die();
+}
+
 
 // include the necessary files
 include("$_SERVER[DOCUMENT_ROOT]/treechamp/api/config/database.php");
@@ -33,49 +44,62 @@ if (!isset($uid) && !isset($api_key)) {
             // Get the data
             //$update = json_decode(utf8_encode($_POST['data']));
 
-            $data = json_decode(file_get_contents('php://input'), true);
-            $update = $data['data'];
+            // $data = json_decode(file_get_contents('php://input'), true);
+            // $update = $data['data'];
 
             // Update the details
-            if (!isset($update['title']) && !isset($update['description']) && !isset($update['treeid'])) {
+            if (!isset($POST['title']) && !isset($POST['description']) && !isset($POST['treeid'])) {
                 echo json_encode(array("status" => "Error", "message" => "Title and Description not set"));
             } else {
 
-                $title = $update['title'];
-                $description = $update['description'];
-                $issue = $update['issue'];
+                $title = $POST['title'];
+                $description = $POST['description'];
+                $issue = $POST['issue'];
 
                 $title = mysqli_real_escape_string($conn, $title);
                 $description = mysqli_real_escape_string($conn, $description);
                 $userid = mysqli_real_escape_string($conn, $uid);
-                $treeid = mysqli_real_escape_string($conn, $update['treeid']);
+                $treeid = mysqli_real_escape_string($conn, $POST['treeid']);
                 $issue = mysqli_real_escape_string($conn, $issue);
 
 
                 $INSERT_UPDATE_QUERY = "INSERT INTO TC_update(TREEID, USERID, Title, `Description`, `Issue`) VALUES($treeid, $userid, '$title', '$description', $issue)";
                 $updateid = insert_query($conn, $INSERT_UPDATE_QUERY);
 
-                if (isset($update['posts'])) {
+                // if (isset($update['posts'])) {
 
-                    // Get the posts details
-                    $posts = $update['posts'];
-                    foreach ($posts as &$post) {
-                        if (isset($post['imgURL'])) {
-                            real_escape_string($post['imgURL']);
-                            $imgurl = $post['imgURL'];
+                //     // Get the posts details
+                //     $posts = $update['posts'];
+                //     foreach ($posts as &$post) {
+                //         if (isset($post['imgURL'])) {
+                //             real_escape_string($post['imgURL']);
+                //             $imgurl = $post['imgURL'];
  
-                            if (isset($post['caption'])) {
-                                $caption = $post['caption'];
-                            } else {
-                                $caption = "Updated Image";
-                            }
+                //             if (isset($post['caption'])) {
+                //                 $caption = $post['caption'];
+                //             } else {
+                //                 $caption = "Updated Image";
+                //             }
 
-                            $IMAGE_INSERT_QUERY = "INSERT INTO TC_image(UPDATEID, ImageURL, Caption) VALUES($updateid, '$imgurl', '$caption')";
-                            $imgupdateid = insert_query($conn, $IMAGE_INSERT_QUERY);
-                        }
+                //             $IMAGE_INSERT_QUERY = "INSERT INTO TC_image(UPDATEID, ImageURL, Caption) VALUES($updateid, '$imgurl', '$caption')";
+                //             $imgupdateid = insert_query($conn, $IMAGE_INSERT_QUERY);
+                //         }
+                //     }
+                // }
+                
+                if (isset($POST['imgURL'])) {
+                    real_escape_string($POST['imgURL']);
+                    $imgurl = $POST['imgURL'];
+
+                    if (isset($POST['caption'])) {
+                        $caption = $POST['caption'];
+                    } else {
+                        $caption = "Updated Image";
                     }
-                }
 
+                    $IMAGE_INSERT_QUERY = "INSERT INTO TC_image(UPDATEID, ImageURL, Caption) VALUES($updateid, '$imgurl', '$caption')";
+                    $imgupdateid = insert_query($conn, $IMAGE_INSERT_QUERY);
+                }           
                 // Send the response
                 if (isset($updateid)) {
                     echo json_encode(array("status" => "Success", "updateID" => $updateid));
@@ -135,7 +159,32 @@ if (!isset($uid) && !isset($api_key)) {
                     } else {
                         echo json_encode(array("status" => "Error", "message" => "No updates found"));
                     }
-                } else {
+                } 
+                
+                if (isset($_GET['treeid'])) {
+                    $treeid = $_GET['treeid'];
+                    real_escape_string($treeid);
+
+                    // Fetch all updates for the tree
+                    $TREE_UPDATES_QUERY = "SELECT UPDATEID FROM TC_update WHERE TREEID = $treeid ORDER BY Dateadded DESC";
+                    $updates_result = select_query($conn, $TREE_UPDATES_QUERY);
+
+                    if($updates_result-> num_rows > 0) {
+
+                        $updates = array();
+                        while($update_row = $updates_result->fetch_assoc()) {
+                            $update = get_update($conn, $update_row['UPDATEID']);
+                            if(!empty($update)) {
+                                array_push($updates, $update);
+                            }
+                        }
+
+                        echo json_encode(array("status" => "Success", "data" => $updates));
+                    } else {
+                        echo json_encode(array("status" => "Error", "message" => "No updates found"));
+                    }
+                }
+                else {
                     // // verify the admin status
                     // if(!verify_admin($conn, $uid)) {
                     //     echo json_encode(array("status" => "Error", "messsage" => "Only admins can view all trees"));
