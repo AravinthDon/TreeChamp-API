@@ -48,18 +48,19 @@ if (!isset($uid) && !isset($api_key)) {
             // $update = $data['data'];
 
             // Update the details
-            if (!isset($POST['title']) && !isset($POST['description']) && !isset($POST['treeid'])) {
+            if (!isset($_POST['title']) && !isset($_POST['description']) && !isset($_POST['treeid'])) {
+                //echo json_encode(array("status" => "Error", "message" => $_POST));
                 echo json_encode(array("status" => "Error", "message" => "Title and Description not set"));
             } else {
 
-                $title = $POST['title'];
-                $description = $POST['description'];
-                $issue = $POST['issue'];
+                $title = $_POST['title'];
+                $description = $_POST['description'];
+                $issue = $_POST['issue'];
 
                 $title = mysqli_real_escape_string($conn, $title);
                 $description = mysqli_real_escape_string($conn, $description);
                 $userid = mysqli_real_escape_string($conn, $uid);
-                $treeid = mysqli_real_escape_string($conn, $POST['treeid']);
+                $treeid = mysqli_real_escape_string($conn, $_POST['treeid']);
                 $issue = mysqli_real_escape_string($conn, $issue);
 
 
@@ -87,12 +88,12 @@ if (!isset($uid) && !isset($api_key)) {
                 //     }
                 // }
                 
-                if (isset($POST['imgURL'])) {
-                    real_escape_string($POST['imgURL']);
-                    $imgurl = $POST['imgURL'];
+                if (isset($_POST['imgURL'])) {
+                    real_escape_string($_POST['imgURL']);
+                    $imgurl = $_POST['imgURL'];
 
-                    if (isset($POST['caption'])) {
-                        $caption = $POST['caption'];
+                    if (isset($_POST['caption'])) {
+                        $caption = $_POST['caption'];
                     } else {
                         $caption = "Updated Image";
                     }
