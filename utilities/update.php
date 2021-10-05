@@ -14,11 +14,12 @@ function get_update($conn, $updateid) {
 
         $update_row = $update_result->fetch_assoc();
 
+        $update['ID'] = $update_row['UPDATEID'];
         $update['title'] = $update_row['Title'];
         $update['description'] = $update_row['Description'];
         $update['dateadded'] = $update_row['Dateadded']; // might wanna change the data type
         $update['issue'] = $update_row['Issue']? true : false ;
-
+        $update['solved'] = $update_row['Solved']? true: false ;
         $update['posts'] = array();
         // Fetch the images related to the update
         $FETCH_IMAGES_QUERY = "SELECT * FROM TC_image WHERE UPDATEID = $updateid";

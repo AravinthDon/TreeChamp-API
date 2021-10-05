@@ -3,9 +3,20 @@
 /**
  * For fetching and editing the profile details
  */
-header("Access-Control-Allow-Origin: *");
-header('Access-Control-Allow-Methods: GET POST PUT');
+header('Access-Control-Allow-Origin: *');
+header("Access-Control-Allow-Methods: HEAD, GET, POST, PUT, PATCH, DELETE, OPTIONS");
+// Added user defined headers: uid, appid
+header("Access-Control-Allow-Headers: X-API-KEY, Origin, X-Requested-With, Content-Type, Accept, Access-Control-Request-Method,Access-Control-Request-Headers, Authorization, uid, appid");
 header('Content-Type: application/json');
+
+
+$method = $_SERVER['REQUEST_METHOD'];
+if ($method == "OPTIONS") {
+    header('Access-Control-Allow-Origin: *');
+    header("Access-Control-Allow-Headers: X-API-KEY, Origin, X-Requested-With, Content-Type, Accept, Access-Control-Request-Method,Access-Control-Request-Headers, Authorization, uid, appid");
+    header("HTTP/1.1 200 OK");
+    die();
+}
 
 // include the necessary files
 include("$_SERVER[DOCUMENT_ROOT]/treechamp/api/config/database.php");
@@ -35,6 +46,7 @@ if (!isset($uid) && !isset($api_key)) {
                 $user_row = $user_result->fetch_assoc(); // only one row
 
                 $user['username'] = $user_row['Username'];
+                $user['type'] = get_usertype($conn, $user_row['USERTYPEID']);
                 // Add any additional details in the future
 
                 echo json_encode(array("status" => "Success", "data" => $user));
