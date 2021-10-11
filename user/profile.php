@@ -74,7 +74,7 @@ if (!isset($uid) && !isset($api_key)) {
                     $UPDATE_PASSWORD_QUERY = "UPDATE TC_user SET Password='$hashed_password' WHERE USERID=$uid";
 
                     if ($conn->query($UPDATE_PASSWORD_QUERY) == TRUE) {
-                        echo json_encode(array("status" => "Success", "message" => "Password Changed successfully"));
+                        echo json_encode(array("status" => "Success", "message" => "Password Changed successfully", "password" => $password));
                     } else {
                         echo json_encode(array("status" => "Error", "message" => "Failed to update password!"));
                     }
@@ -99,6 +99,7 @@ if (!isset($uid) && !isset($api_key)) {
                     }
                     break;
             }
+            //echo json_encode(array("data" => $data));
         }
     }
 }

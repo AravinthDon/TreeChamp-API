@@ -41,7 +41,7 @@
         $VERIFY_ADMIN_QUERY = "SELECT USERID FROM TC_user WHERE USERID = $user_id AND USERTYPEID = $admin_usertypeid";
         $verified_admin_id = select_query($conn, $VERIFY_ADMIN_QUERY);
 
-        if($verified_admin_id -> num_rows = 1) {
+        if($verified_admin_id -> num_rows == 1) {
             return true;
         }
 
@@ -58,7 +58,7 @@
         string $keyspace = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
     ): string {
 
-        $keyspace = str_shuffle($keyspace );
+        $keyspace = str_shuffle($keyspace);
 
         if ($length < 1) {
             return NULl;
