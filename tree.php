@@ -13,8 +13,13 @@
     if($_SERVER['REQUEST_METHOD'] == "GET") {
         if(isset($_GET['treeid'])) {
             
-            $tree = fetch_tree($conn, $_GET['treeid']);
-            echo json_encode(array("status" => "Success", "data" => $tree));
+            if($_GET['treeid'] < 0) {
+                echo json_encode(array("status" => "Error", "message" => "treeid cannot be negative"));
+            } else {
+                $tree = fetch_tree($conn, $_GET['treeid']);
+                echo json_encode(array("status" => "Success", "data" => $tree));
+            }
+            
         } else {
             echo json_encode(array("status" => "Error", "message" => "Tree details not found" ));
         }
