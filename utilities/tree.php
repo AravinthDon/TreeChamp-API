@@ -290,4 +290,23 @@
         return $res;
             
     }
+
+    /**
+     * gets location of the trees
+     */
+    function get_location($conn, $treeid) {
+        $coordinates = array();
+        $GET_COORDINATES_QUERY = "SELECT Latitude, Longitude from TC_tree where TREEID = $treeid";
+
+        $result = select_query($conn, $GET_COORDINATES_QUERY);
+
+        if($result->num_rows > 0) {
+            $row = $result->fetch_assoc();
+            $coordinates['lat'] = $row['Latitude'];
+            $coordinates['lng'] = $row['Longitude'];
+            return $coordinates;
+        } else {
+            return NULL;
+        }
+    }
 ?>
