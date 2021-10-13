@@ -21,6 +21,7 @@ include("$_SERVER[DOCUMENT_ROOT]/treechamp/api/config/database.php");
 include("$_SERVER[DOCUMENT_ROOT]/treechamp/api/utilities/db.php");
 include("$_SERVER[DOCUMENT_ROOT]/treechamp/api/utilities/user.php");
 include("$_SERVER[DOCUMENT_ROOT]/treechamp/api/utilities/update.php");
+include("$_SERVER[DOCUMENT_ROOT]/treechamp/api/utilities/tree.php");
 
 
 // Get the url
@@ -63,6 +64,43 @@ if (!isset($uid) && !isset($api_key)) {
                 $treeid = mysqli_real_escape_string($conn, $_POST['treeid']);
                 $issue = mysqli_real_escape_string($conn, $issue);
 
+                $weather_api_key = "fe0bc13701e3bf287f39346d09875b1f";
+                $location = get_location($conn, $treeid);
+                $lat = $location['lat'];
+                $lng = $location['lng'];
+                // Before inserting the upate get the weather details from the openweather api
+                $weather_url = "https://api.openweathermap.org/data/2.5/find?lat=$lat&lon=$lng&appid=$weather_api_key&units=metric";
+
+                // get the json file
+                $weather_data = json_decode(file_get_contents($weather_url), true);
+                //echo json_encode($weather_data);
+                // get the necessary weather details
+                $list = $weather_data['list'];
+                foreach($list as $city) {
+                    if($city['name'] == "Belfast") {
+                        //echo json_encode($city);
+                        $main = $city['main'];
+                        //echo json_encode($main);
+                        $temperature = $main['temp'];
+                        $humidity = $main['humidity'];
+                        $sys = $city['sys'];
+                        //echo json_encode($sys);
+                        if (isset($sys['sunrise']) && isset($sys['sunset'])) {
+                            $sunrise = $sys['sunrise'];
+                            $sunset = $sys['sunset'];
+
+                            $sunrise = gmdate("Y-m-d H:i:s ", $sunrise);
+                            $sunset = gmdate("Y-m-d H:i:s", $sunset);
+                            // calculate the daylight
+                            $daylight = round((strtotime($sunset) - strtotime($sunrise))/3600, 1);
+                        } else {
+                            $daylight = "NULL";
+                        }
+                        break;
+                    }
+                }
+
+                
 
                 $INSERT_UPDATE_QUERY = "INSERT INTO TC_update(TREEID, USERID, Title, `Description`, `Issue`) VALUES($treeid, $userid, '$title', '$description', $issue)";
                 $updateid = insert_query($conn, $INSERT_UPDATE_QUERY);
@@ -103,7 +141,17 @@ if (!isset($uid) && !isset($api_key)) {
                 }           
                 // Send the response
                 if (isset($updateid)) {
-                    echo json_encode(array("status" => "Success", "updateID" => $updateid));
+
+                    // Insert the weather data into the database
+                    $INSERT_WEATHER_QUERY = "INSERT INTO TC_weatherUpdate(UPDATEID, temperature, humidity, daylight) VALUES($updateid, $temperature, $humidity, $daylight)";
+                    $weatherupdateid = insert_query($conn, $INSERT_WEATHER_QUERY);
+
+                    if(isset($weatherupdateid)) {
+                        echo json_encode(array("status" => "Success", "updateID" => $updateid));
+                    } else {
+                        echo json_encode(array("status" => "Error", "message" => "Cannot update weather details"));
+                    }
+                    
                 } else {
                     echo json_encode(array("status" => "Error", "message" => "Cannot make an update"));
                 }
